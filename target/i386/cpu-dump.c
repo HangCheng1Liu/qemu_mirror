@@ -482,10 +482,10 @@ void x86_cpu_dump_state(CPUState *cs, FILE *f, int flags)
                        avx_mask = XSTATE_YMM_MASK | XSTATE_SSE_MASK;
         fptag = 0;
         for(i = 0; i < 8; i++) {
-            fptag |= ((!env->fptags[i]) << i);
+            fptag |= ((env->fptags[i]) << (2*i));
         }
         update_mxcsr_from_sse_status(env);
-        qemu_fprintf(f, "FCW=%04x FSW=%04x [ST=%d] FTW=%02x MXCSR=%08x\n",
+        qemu_fprintf(f, "FCW=%04x FSW=%04x [ST=%d] FTW=%04x MXCSR=%08x\n",
                      env->fpuc,
                      (env->fpus & ~0x3800) | (env->fpstt & 0x7) << 11,
                      env->fpstt,

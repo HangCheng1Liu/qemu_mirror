@@ -3104,8 +3104,7 @@ void helper_enter_mmx(CPUX86State *env)
 void helper_emms(CPUX86State *env)
 {
     /* set to empty state */
-    *(uint32_t *)(env->fptags) = 0x01010101;
-    *(uint32_t *)(env->fptags + 4) = 0x01010101;
+    *(uint64_t *)(env->fptags) = 0x0303030303030303;
 }
 
 #define SHIFT 0

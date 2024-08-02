@@ -6074,7 +6074,7 @@ static void x86_cpu_reset_hold(Object *obj)
 
     /* FPU init */
     for (i = 0; i < 8; i++) {
-        env->fptags[i] = 1;
+        env->fptags[i] = 3;
     }
     cpu_set_fpuc(env, 0x37f);
 
