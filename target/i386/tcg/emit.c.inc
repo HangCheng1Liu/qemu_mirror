@@ -1117,7 +1117,7 @@ static void gen_BLSI(DisasContext *s, CPUX86State *env, X86DecodedInsn *decode)
     tcg_gen_neg_tl(s->T1, s->T0);
     tcg_gen_and_tl(s->T0, s->T0, s->T1);
     tcg_gen_mov_tl(cpu_cc_dst, s->T0);
-    set_cc_op(s, CC_OP_BMILGB + ot);
+    set_cc_op(s, CC_OP_BLSIB + ot);
 }
 
 static void gen_BLSMSK(DisasContext *s, CPUX86State *env, X86DecodedInsn *decode)
