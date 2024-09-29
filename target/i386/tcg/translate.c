@@ -5078,6 +5078,7 @@ static bool disas_insn(DisasContext *s, CPUState *cpu)
         /* control */
     case 0xc2: /* ret im */
         val = x86_ldsw_code(env, s);
+        val &= 0xffff; // x86 use unsigned imm for ret
         ot = gen_pop_T0(s);
         gen_stack_update(s, val + (1 << ot));
         /* Note that gen_pop_T0 uses a zero-extending load.  */
