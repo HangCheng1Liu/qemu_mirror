@@ -2659,7 +2659,7 @@ static void do_xsave(CPUX86State *env, target_ulong ptr, uint64_t rfbm,
     if (opt & XSTATE_FP_MASK) {
         do_xsave_fpu(env, ptr, ra);
     }
-    if (rfbm & XSTATE_SSE_MASK) {
+    if (rfbm & (XSTATE_SSE_MASK | XSTATE_YMM_MASK)) {
         /* Note that saving MXCSR is not suppressed by XSAVEOPT.  */
         do_xsave_mxcsr(env, ptr, ra);
     }
