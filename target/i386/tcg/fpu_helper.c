@@ -41,6 +41,13 @@
 
 #define MAXTAN 9223372036854775808.0
 
+/*
+ * 2^63 as floatx80: used for fcos range check in native floatx80 precision.
+ * Range checks must not convert to double first because values just below
+ * 2^63 (e.g. 2^63-1) round up to 2^63 in double, causing false out-of-range.
+ */
+#define floatx80_2p63 make_floatx80(0x403e, 0x8000000000000000LL)
+
 /* the following deal with x86 long double-precision numbers */
 #define MAXEXPD 0x7fff
 #define EXPBIAS 16383
@@ -2303,24 +2310,24 @@ void helper_fscale(CPUX86State *env)
 
 void helper_fsin(CPUX86State *env)
 {
-    double fptemp = floatx80_to_double(env, ST0);
-
-    if ((fptemp > MAXTAN) || (fptemp < -MAXTAN)) {
+    if (!floatx80_lt_quiet(floatx80_abs(ST0), floatx80_2p63,
+                           &env->fp_status)) {
         env->fpus |= 0x400;
     } else {
+        double fptemp = floatx80_to_double(env, ST0);
         ST0 = double_to_floatx80(env, sin(fptemp));
         env->fpus &= ~0x400;  /* C2 <-- 0 */
-        /* the above code is for |arg| < 2**53 only */
+        /* the above code is for |arg| < 2**63 only */
     }
 }
 
 void helper_fcos(CPUX86State *env)
 {
-    double fptemp = floatx80_to_double(env, ST0);
-
-    if ((fptemp > MAXTAN) || (fptemp < -MAXTAN)) {
+    if (!floatx80_lt_quiet(floatx80_abs(ST0), floatx80_2p63,
+                           &env->fp_status)) {
         env->fpus |= 0x400;
     } else {
+        double fptemp = floatx80_to_double(env, ST0);
         ST0 = double_to_floatx80(env, cos(fptemp));
         env->fpus &= ~0x400;  /* C2 <-- 0 */
         /* the above code is for |arg| < 2**63 only */
