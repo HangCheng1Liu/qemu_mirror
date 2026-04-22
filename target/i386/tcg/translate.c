@@ -5458,6 +5458,7 @@ static bool disas_insn(DisasContext *s, CPUState *cpu)
             /* For lzcnt/tzcnt, Z bit is defined related to the result.  */
             gen_op_update1_cc(s);
             set_cc_op(s, CC_OP_BMILGB + ot);
+            gen_op_mov_reg_v(s, ot, reg, s->T0);
         } else {
             /* For bsr/bsf, only the Z bit is defined and it is related
                to the input and not the result.  */
@@ -5468,17 +5469,20 @@ static bool disas_insn(DisasContext *s, CPUState *cpu)
                input is zero, but real hardware leaves it unchanged, and
                real programs appear to depend on that.  Accomplish this
                by passing the output as the value to return upon zero.  */
+
+            TCGLabel *label_bsf_zero = gen_new_label();
+            tcg_gen_brcondi_tl(TCG_COND_EQ, s->T0, 0, label_bsf_zero);
             if (b & 1) {
                 /* For bsr, return the bit index of the first 1 bit,
                    not the count of leading zeros.  */
-                tcg_gen_xori_tl(s->T1, cpu_regs[reg], TARGET_LONG_BITS - 1);
-                tcg_gen_clz_tl(s->T0, s->T0, s->T1);
+                tcg_gen_clzi_tl(s->T0, s->T0, TARGET_LONG_BITS);
                 tcg_gen_xori_tl(s->T0, s->T0, TARGET_LONG_BITS - 1);
             } else {
-                tcg_gen_ctz_tl(s->T0, s->T0, cpu_regs[reg]);
+                tcg_gen_ctzi_tl(s->T0, s->T0, TARGET_LONG_BITS);
             }
+            gen_op_mov_reg_v(s, ot, reg, s->T0);
+            gen_set_label(label_bsf_zero);
         }
-        gen_op_mov_reg_v(s, ot, reg, s->T0);
         break;
         /************************/
         /* bcd */
